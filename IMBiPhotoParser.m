@@ -141,6 +141,18 @@
 	{
 		CFArrayRef recentLibraries = CFPreferencesCopyAppValue((CFStringRef)@"iPhotoRecentDatabases",(CFStringRef)@"com.apple.iApps");
 		NSArray* libraries = (NSArray*)recentLibraries;
+        
+        // Sandboxing "workaround".
+        if (!libraries)
+        {
+            NSArray *photoPath = NSSearchPathForDirectoriesInDomains(NSPicturesDirectory, NSUserDomainMask, YES);
+            if ([photoPath count] > 0) {
+                NSString * iPhotoLibraryPath = [[[photoPath objectAtIndex: 0] stringByAppendingPathComponent:@"iPhoto Library"] stringByAppendingPathComponent:@"AlbumData.xml"];
+                if ([[NSFileManager defaultManager] fileExistsAtPath: iPhotoLibraryPath]) {
+                    libraries = [NSArray arrayWithObject: [[NSURL fileURLWithPath: iPhotoLibraryPath] absoluteString]];
+                }
+            }
+        }
 		
 		for (NSString* library in libraries)
 		{
